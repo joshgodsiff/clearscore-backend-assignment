@@ -1,11 +1,10 @@
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 module ClearScore.Handlers where
 
 import ClearScore.Env 
-import ClearScore.Types as C (CreditCard (..), CreditCardRequest (..))
+import ClearScore.Types as C (CreditCard (..), CreditCardRequest (..), Requestable (..))
 
 import ClearScore.Types ( send )
 import ClearScore.CsCards as CsCards ()
@@ -28,16 +27,14 @@ creditcardsPost
   => C.CreditCardRequest
   -> m [C.CreditCard]
 creditcardsPost req = do
-  cse <- asks csCardsEndpoint
-  sce <- asks scoredCardsEndpoint
+  urls <- asks backendUrls
     
   -- You probably want to reuse the Manager across calls, for performance reasons
   manager <- liftIO $ newManager tlsManagerSettings
 
-  let queryCsCards     = send manager cse req
-  let queryScoredCards = send manager sce req
+  let backendQueries = (\(Requestable url) -> send manager url req) <$> urls
 
-  res <- liftIO $ mapConcurrently id [queryCsCards, queryScoredCards]
+  res <- liftIO $ mapConcurrently id backendQueries
   cards <- liftEither $ join <$> sequenceA res
 
   liftIO $ print cards

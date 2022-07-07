@@ -24,6 +24,10 @@ newtype CsCardsEndpoint = CsCardsEndpoint String
 instance T.ParseUrl CsCardsEndpoint where
   parseUrl (CsCardsEndpoint url) = parseBaseUrl url
 
+instance T.DetermineEndpoint CsCardsEndpoint where
+  type Req CsCardsEndpoint = CardSearchRequest
+  type Res CsCardsEndpoint = Card
+
 data Card = Card
   { cardName :: Text -- ^ Name of the credit card product
   , apr :: Double -- ^ Annual percentage rate for the card
@@ -45,15 +49,15 @@ type CsCardsApi
 cards :: Maybe Text -> CardSearchRequest -> ClientM [Card]
 cards = S.client (Proxy :: Proxy CsCardsApi)
 
-instance T.Request CardSearchRequest Card CsCardsEndpoint where
+instance T.Request CardSearchRequest Card where
   call = cards $ Just "haskell/servant"
   
-  convertRequest _ req = CardSearchRequest
+  convertRequest req = CardSearchRequest
     { name = R.name req
     , creditScore = R.creditScore req
     }
 
-  convertResponse _ csCard = C.CreditCard
+  convertResponse csCard = C.CreditCard
     { C.provider = "CSCards"
     , C.name = cardName csCard
     , C.apr = apr csCard

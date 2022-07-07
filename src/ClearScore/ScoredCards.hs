@@ -4,6 +4,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module ClearScore.ScoredCards where
 
@@ -22,6 +23,10 @@ newtype ScoredCardsEndpoint = ScoredCardsEndpoint String
 
 instance T.ParseUrl ScoredCardsEndpoint where
   parseUrl (ScoredCardsEndpoint url) = parseBaseUrl url
+
+instance T.DetermineEndpoint ScoredCardsEndpoint where
+  type Req ScoredCardsEndpoint = ScoredCardsRequest
+  type Res ScoredCardsEndpoint = CreditCard
 
 data CreditCard = CreditCard
   { card :: Text -- ^ Name of the credit card
@@ -48,16 +53,16 @@ type ScoredCardsApi
 creditcards :: Maybe Text -> ScoredCardsRequest -> ClientM [CreditCard]
 creditcards = client (Proxy :: Proxy ScoredCardsApi)
 
-instance T.Request ScoredCardsRequest CreditCard ScoredCardsEndpoint where
+instance T.Request ScoredCardsRequest CreditCard where
   call = creditcards $ Just "haskell/servant"
   
-  convertRequest _ req = ScoredCardsRequest
+  convertRequest req = ScoredCardsRequest
     { name = R.name req
     , score = R.creditScore req
     , salary = R.salary req
     }
 
-  convertResponse _ scoredCard = C.CreditCard
+  convertResponse scoredCard = C.CreditCard
     { C.provider = "ScoredCards"
     , C.name = card scoredCard
     , C.apr = apr scoredCard
