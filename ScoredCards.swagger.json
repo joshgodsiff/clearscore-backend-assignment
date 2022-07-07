@@ -1,0 +1,107 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "A JSON api for getting credit card recommendations",
+    "version": "18",
+    "title": "ScoredCards"
+  },
+  "basePath": "/api/global/backend-tech-test",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/v2/creditcards": {
+      "post": {
+        "summary": "Find card recommendations",
+        "description": "Find card recommendations based on a users information",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ScoredCardsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of recommended credit cards",
+            "schema": {
+              "$ref": "#/definitions/ScoredCardsResponse"
+            }
+          },
+          "400": {
+            "description": "The request contained invalid parameters"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ScoredCardsRequest": {
+      "type": "object",
+      "required": [
+        "name",
+        "score",
+        "salary"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Users name"
+        },
+        "score": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Credit score between 0 and 700",
+          "minimum": 0,
+          "maximum": 700
+        },
+        "salary": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0
+        }
+      }
+    },
+    "ScoredCardsResponse": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CreditCard"
+      }
+    },
+    "CreditCard": {
+      "type": "object",
+      "required": [
+        "apr",
+        "approvalRating",
+        "card"
+      ],
+      "properties": {
+        "card": {
+          "type": "string",
+          "description": "Name of the credit card"
+        },
+        "apr": {
+          "type": "number",
+          "format": "double",
+          "description": "Annual percentage rate for the card"
+        },
+        "approvalRating": {
+          "type": "number",
+          "format": "double",
+          "description": "The likelihood of the user being approved, from 0.0 to 1.0",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      }
+    }
+  }
+}
