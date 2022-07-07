@@ -15,9 +15,10 @@ import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Control.Monad.Except (liftEither, MonadError)
 import Servant (ServerError (..))
-import Control.Concurrent.Async (concurrently)
+import Control.Concurrent.Async (mapConcurrently)
 import Control.Monad.Reader (MonadReader, asks)
 import Control.Monad.Catch (MonadThrow)
+import Control.Monad (join)
 
 creditcardsPost 
   :: MonadThrow m
@@ -29,20 +30,17 @@ creditcardsPost
 creditcardsPost req = do
   cse <- asks csCardsEndpoint
   sce <- asks scoredCardsEndpoint
-  
+    
   -- You probably want to reuse the Manager across calls, for performance reasons
   manager <- liftIO $ newManager tlsManagerSettings
 
   let queryCsCards     = send manager cse req
   let queryScoredCards = send manager sce req
 
-  (a,b) <- liftIO $ concurrently queryCsCards queryScoredCards
+  res <- liftIO $ mapConcurrently id [queryCsCards, queryScoredCards]
+  cards <- liftEither $ join <$> sequenceA res
 
-  cards'' <- liftEither a
-  cards' <- liftEither b
+  liftIO $ print cards
 
-  liftIO $ print cards''
-  liftIO $ print cards'
-
-  pure $ cards'' ++ cards'
+  pure cards
 

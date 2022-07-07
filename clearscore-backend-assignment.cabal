@@ -23,12 +23,10 @@ executable clearscore-backend-assignment
                      , containers
                      , dotenv
                      , exceptions
-                     , generic-lens
                      , http-api-data
                      , http-client
                      , http-client-tls
                      , http-types
-                     , lens
                      , mtl
                      , network-uri
                      , servant
