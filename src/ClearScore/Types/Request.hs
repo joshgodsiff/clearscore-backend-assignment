@@ -56,8 +56,11 @@ send
   :: ParseUrl url
   => DetermineEndpoint url
   => Request (Req url) (Res url)
-  => Manager -> url -> CreditCardRequest -> IO (Either ServerError [CreditCard])
-send mgr u req = do
+  => Manager
+  -> CreditCardRequest 
+  -> url
+  -> IO (Either ServerError [CreditCard])
+send mgr req u = do
   url <- parseUrl u
   let env = mkClientEnv mgr url
 

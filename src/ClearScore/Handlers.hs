@@ -32,7 +32,7 @@ creditcardsPost req = do
   -- You probably want to reuse the Manager across calls, for performance reasons
   manager <- liftIO $ newManager tlsManagerSettings
 
-  let backendQueries = (\(Requestable url) -> send manager url req) <$> urls
+  let backendQueries = (\(Requestable url) -> send manager req url) <$> urls
 
   res <- liftIO $ mapConcurrently id backendQueries
   cards <- liftEither $ join <$> sequenceA res
