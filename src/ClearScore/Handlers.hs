@@ -3,8 +3,11 @@
 
 module ClearScore.Handlers where
 
-import ClearScore.Env 
-import ClearScore.Types as C (CreditCard (..), CreditCardRequest (..), Requestable (..))
+import ClearScore.Env
+    ( Env(backendUrls)
+    , Requestable(Requestable)
+    ) 
+import ClearScore.Types as C (CreditCard (..), CreditCardRequest (..))
 
 import ClearScore.Types ( send )
 import ClearScore.CsCards as CsCards ()
@@ -28,16 +31,10 @@ creditcardsPost
   -> m [C.CreditCard]
 creditcardsPost req = do
   urls <- asks backendUrls
-    
-  -- You probably want to reuse the Manager across calls, for performance reasons
   manager <- liftIO $ newManager tlsManagerSettings
 
   let backendQueries = (\(Requestable url) -> send manager req url) <$> urls
 
   res <- liftIO $ mapConcurrently id backendQueries
-  cards <- liftEither $ join <$> sequenceA res
-
-  liftIO $ print cards
-
-  pure cards
+  liftEither $ join <$> sequenceA res
 

@@ -19,6 +19,16 @@ import qualified ClearScore.Types as T
 import qualified ClearScore.Types as R (CreditCardRequest (..))
 import qualified ClearScore.Types as C (CreditCard (..))
 
+type CsCardsApi
+    = "v1" 
+        :> "cards" 
+          :> S.Header "User-Agent" Text
+          :> ReqBody '[JSON] CardSearchRequest
+          :> Post '[JSON] [Card] -- 'v1CardsPost' route
+
+cards :: Maybe Text -> CardSearchRequest -> ClientM [Card]
+cards = S.client (Proxy :: Proxy CsCardsApi)
+
 newtype CsCardsEndpoint = CsCardsEndpoint String
 
 instance T.ParseUrl CsCardsEndpoint where
@@ -38,16 +48,6 @@ data CardSearchRequest = CardSearchRequest
   { name :: Text -- ^ Users full name
   , creditScore :: Int -- ^ Credit score between 0 and 700
   } deriving (Show, Eq, Generic, ToJSON, FromJSON)
-
-type CsCardsApi
-    = "v1" 
-        :> "cards" 
-          :> S.Header "User-Agent" Text
-          :> ReqBody '[JSON] CardSearchRequest
-          :> Post '[JSON] [Card] -- 'v1CardsPost' route
-
-cards :: Maybe Text -> CardSearchRequest -> ClientM [Card]
-cards = S.client (Proxy :: Proxy CsCardsApi)
 
 instance T.Request CardSearchRequest Card where
   call = cards $ Just "haskell/servant"

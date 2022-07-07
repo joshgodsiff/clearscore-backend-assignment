@@ -19,7 +19,7 @@ import Control.Monad.Except (MonadError, runExceptT, ExceptT)
 
 -- | Servant type-level API, generated from the OpenAPI spec for ClearScore.
 type ClearScoreAPI
-    =    "creditcards" :> ReqBody '[JSON] CreditCardRequest :> Post '[JSON] [CreditCard] -- 'creditcardsPost' route
+    = "creditcards" :> ReqBody '[JSON] CreditCardRequest :> Post '[JSON] [CreditCard] -- 'creditcardsPost' route
 
 type AppM = ReaderT Env Handler
 

@@ -14,7 +14,6 @@
 module ClearScore.Types.Request
   ( ParseUrl (..)
   , Request (..)
-  , Requestable (..)
   , DetermineEndpoint (..)
   , send
   )
@@ -43,9 +42,6 @@ class Request req res | res -> req, req -> res where
   convertRequest :: CreditCardRequest -> req
   convertResponse :: res -> CreditCard
 
--- This lets us get a heterogeneous (i.e. differently-typed) list of requestable URLs
-data Requestable = forall url. (DetermineEndpoint url, ParseUrl url) => Requestable url
-
 -- This associates a particular pair of request/response types to a particular URL type.
 class Request (Req url) (Res url) => DetermineEndpoint url where
   type Req url :: Type
@@ -55,7 +51,6 @@ class Request (Req url) (Res url) => DetermineEndpoint url where
 send 
   :: ParseUrl url
   => DetermineEndpoint url
-  => Request (Req url) (Res url)
   => Manager
   -> CreditCardRequest 
   -> url

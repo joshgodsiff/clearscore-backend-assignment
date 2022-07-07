@@ -21,12 +21,3 @@ data CreditCardRequest = CreditCardRequest
   , creditScore :: Int -- ^ Credit score between 0 and 700
   , salary :: Int -- ^ Users annual salary
   } deriving (Show, Eq, Generic, ToJSON, FromJSON)
-
-newtype Eligibility = Eligibility { unEligibility :: Double } 
-  deriving (Eq, Ord, Show)
-
-newtype Apr = Apr { unApr :: Double } 
-  deriving (Eq, Ord, Show)
-
-newtype Score = Score { unScore :: Double } 
-  deriving (Eq, Ord, Show)
