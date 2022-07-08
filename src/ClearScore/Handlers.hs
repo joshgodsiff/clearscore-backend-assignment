@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module ClearScore.Handlers where
 
@@ -12,8 +13,8 @@ import ClearScore.Types ( send )
 import Network.HTTP.Client     (newManager)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Control.Monad.IO.Class (liftIO, MonadIO)
-import Control.Monad.Except (MonadError)
-import Servant (ServerError (..))
+import Control.Monad.Except (MonadError, liftEither)
+import Servant (ServerError (..), err400)
 import Control.Concurrent.Async (mapConcurrently, race)
 import Control.Monad.Reader (MonadReader, asks)
 import Control.Monad.Catch (MonadThrow)
@@ -31,6 +32,7 @@ creditcardsPost
   => C.CreditCardRequest
   -> m [C.CreditCard]
 creditcardsPost req = do
+  _ <- liftEither $ validateRequest req
   urls <- asks backendUrls
   manager <- liftIO $ newManager tlsManagerSettings
 
@@ -52,6 +54,16 @@ creditcardsPost req = do
 
   -- This is the alternative (where we fail the whole query if any of the backends fails)
   --liftEither $ join <$> sequenceA res
+
+validateRequest :: C.CreditCardRequest -> Either ServerError C.CreditCardRequest
+validateRequest CreditCardRequest { creditScore = c } 
+  | c < 0 || c > 700 = Left invalidParameters
+validateRequest CreditCardRequest { salary = s }
+  | s < 0 = Left invalidParameters
+validateRequest req = Right req
+
+invalidParameters :: ServerError
+invalidParameters = err400 { errBody = "The request contained invalid parameters" }
 
 seconds :: Int -> Int
 seconds i = i * 1000000

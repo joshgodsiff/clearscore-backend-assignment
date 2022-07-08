@@ -34,7 +34,7 @@ readEnvVars = do
   let requestableUrls = sequenceA 
         [ Requestable . CsCardsEndpoint     <$> M.lookup "CSCARDS_ENDPOINT" m
         , Requestable . ScoredCardsEndpoint <$> M.lookup "SCOREDCARDS_ENDPOINT" m
-        ] 
+        ]
 
   pure $ Env
     <$> (M.lookup "HTTP_PORT" m >>= fmap HttpPort . readMaybe)
