@@ -29,7 +29,7 @@ If a backend API is taking to long (nominally 5 seconds), we consider that a fai
 
 The only "clever" thing I'm doing is some automatic inference to work out which request/response types correspond to which of the backend API endpoints, so that we can do the conversion between the frontend and backend types automatically (and type safely!). More details on that in `src/ClearScore/Types/Request.hs`.
 
-Additionally - and I've already conveyed this via email, but I'll mention it here as well - there is a bug in your backend APIs (the CSCards and ScoredCards ones) whereby they fail with a security error from CloudFlare if the `User-Agent` header is not set. You should really fix that (or at least not it in the documentation for the assignment), as it is _very_ non-obvious that that would be the case, and took me the better part of a day to discover that that was the root cause of the issue I was having.
+Additionally - and I've already conveyed this via email, but I'll mention it here as well - there is a bug in your backend APIs (the CSCards and ScoredCards ones) whereby they fail with a security error from CloudFlare if the `User-Agent` header is not set. You should really fix that (or at least note it in the documentation for the assignment), as it is _very_ non-obvious that that would be the case, and took me the better part of a day to discover that that was the root cause of the issue I was having.
 
 As far as deploying this, I'd probably default to running it in a Docker container in some cloud or another. It would also _probably_ not take too much modification to run it in a Lambda or similar, but currently it's not set up to do that.
 
