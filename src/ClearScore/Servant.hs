@@ -40,4 +40,3 @@ app :: Env -> Application
 app env =
     let api = hoistServer clearScoreApi (nt env) server
     in serve clearScoreApi api
-        

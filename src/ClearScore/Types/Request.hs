@@ -10,6 +10,12 @@
 -- (the one we get when someone calls this server) into the correct Request type for a particular backend
 -- (e.g. CsCards or ScoredCards), make the call, and then automatically convert the Response type from the
 -- particular backend call back into the response type for our frontend API.
+
+-- Also, this is at least partially an "I want to see if I can do this" sort of thing, rather than necessarily being a good idea.
+-- (You have to get some fun out of these sorts of challenges somewhere, otherwise they get a bit depressing).
+-- In practice, we might not want to tie the base URLs directly to the Request/Response pair, as a URL may have several endpoints under it.
+-- In that instance, we may want to choose a different value or type to carry the information about which Request/Response pair
+-- we should use - probably the `call` method in the `Request` typeclass.
 module ClearScore.Types.Request
   ( ParseUrl (..)
   , Request (..)
