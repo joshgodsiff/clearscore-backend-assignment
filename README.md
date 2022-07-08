@@ -31,6 +31,8 @@ The only "clever" thing I'm doing is some automatic inference to work out which 
 
 Additionally - and I've already conveyed this via email, but I'll mention it here as well - there is a bug in your backend APIs (the CSCards and ScoredCards ones) whereby they fail with a security error from CloudFlare if the `User-Agent` header is not set. You should really fix that (or at least not it in the documentation for the assignment), as it is _very_ non-obvious that that would be the case, and took me the better part of a day to discover that that was the root cause of the issue I was having.
 
+As far as deploying this, I'd probably default to running it in a Docker container in some cloud or another. It would also _probably_ not take too much modification to run it in a Lambda or similar, but currently it's not set up to do that.
+
 # Testing / QA
 
 I've mostly favoured type safety over unit tests for this. I typically consider properly designed type-safe code to be preferable to unit tests - mostly because the compiler checks it, and the compiler has a logic engine, so you can encode a lot of information in types that's either not easily unit testable, or which is easier to maintain at the type level.
