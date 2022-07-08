@@ -1,3 +1,4 @@
 dist-newstyle
 hsperfdata_root
 tmp
+.env
