@@ -13,6 +13,11 @@ where
 import ClearScore.CsCards (CsCardsEndpoint (..))
 import ClearScore.ScoredCards (ScoredCardsEndpoint (..))
 import Configuration.Dotenv
+    ( defaultConfig,
+      loadFile,
+      Config(configExamplePath),
+      onMissingFile )
+import Configuration.Dotenv.Environment
 import qualified Data.Map as M
 import Text.Read (readMaybe)
 import ClearScore.Types (DetermineEndpoint, ParseUrl)
@@ -29,13 +34,15 @@ data Env = Env
 
 readEnvVars :: IO (Maybe Env)
 readEnvVars = do
-  m <- M.fromList <$> loadFile defaultConfig
+  let dotenvCfg = defaultConfig { configExamplePath = [".env.example"] } 
+  _ <- loadFile dotenvCfg `onMissingFile` pure []
+  env <- M.fromList <$> getEnvironment
   
   let requestableUrls = sequenceA 
-        [ Requestable . CsCardsEndpoint     <$> M.lookup "CSCARDS_ENDPOINT" m
-        , Requestable . ScoredCardsEndpoint <$> M.lookup "SCOREDCARDS_ENDPOINT" m
+        [ Requestable . CsCardsEndpoint     <$> M.lookup "CSCARDS_ENDPOINT" env
+        , Requestable . ScoredCardsEndpoint <$> M.lookup "SCOREDCARDS_ENDPOINT" env
         ]
 
   pure $ Env
-    <$> (M.lookup "HTTP_PORT" m >>= fmap HttpPort . readMaybe)
+    <$> (M.lookup "HTTP_PORT" env >>= fmap HttpPort . readMaybe)
     <*> requestableUrls

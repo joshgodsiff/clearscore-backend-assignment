@@ -6,7 +6,7 @@ module ClearScore.Handlers where
 import ClearScore.Env
     ( Env(backendUrls)
     , Requestable(Requestable)
-    ) 
+    )
 import ClearScore.Types as C (CreditCard (..), CreditCardRequest (..))
 
 import ClearScore.Types ( send )
@@ -23,8 +23,10 @@ import Data.Either (rights)
 import Control.Concurrent (threadDelay)
 import Data.Function ((&))
 import Data.Maybe (catMaybes)
+import Data.List (sortOn)
+import Data.Ord ( Down(Down) )
 
-creditcardsPost 
+creditcardsPost
   :: MonadThrow m
   => MonadReader Env m
   => MonadIO m
@@ -50,13 +52,13 @@ creditcardsPost req = do
   -- We could also take some sort of middle ground, where we report both successes and failures, or fail the query only if
   -- all of the backends fail, but that's substantially more effort in both cases.
 
-  pure . join . rights . catMaybes $ res
+  pure . sortOn (Down . cardScore) . join . rights . catMaybes $ res
 
   -- This is the alternative (where we fail the whole query if any of the backends fails)
   --liftEither $ join <$> sequenceA res
 
 validateRequest :: C.CreditCardRequest -> Either ServerError C.CreditCardRequest
-validateRequest CreditCardRequest { creditScore = c } 
+validateRequest CreditCardRequest { creditScore = c }
   | c < 0 || c > 700 = Left invalidParameters
 validateRequest CreditCardRequest { salary = s }
   | s < 0 = Left invalidParameters
